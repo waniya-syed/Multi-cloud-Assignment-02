@@ -1,0 +1,185 @@
+-- Q1
+SELECT p.product_name, b.brand_name
+FROM production.products p
+INNER JOIN production.brands b
+    ON p.brand_id = b.brand_id
+ORDER BY b.brand_name ASC, p.product_name ASC;
+
+
+-- Q2
+SELECT p.product_name, c.category_name, p.list_price
+FROM production.products p
+INNER JOIN production.categories c
+    ON p.category_id = c.category_id
+ORDER BY c.category_name ASC, p.list_price ASC;
+
+
+-- Q3
+SELECT o.order_id,
+       CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
+       o.order_date
+FROM sales.orders o
+INNER JOIN sales.customers c
+    ON o.customer_id = c.customer_id
+ORDER BY o.order_date DESC;
+
+
+-- Q4
+SELECT oi.order_id,
+       p.product_name,
+       oi.quantity,
+       oi.list_price AS unit_price,
+       (oi.quantity * oi.list_price) AS [Line Total]
+FROM sales.order_items oi
+INNER JOIN production.products p
+    ON oi.product_id = p.product_id
+ORDER BY oi.order_id;
+
+
+-- Q5
+SELECT o.order_id, s.store_name, o.order_date
+FROM sales.orders o
+INNER JOIN sales.stores s
+    ON o.store_id = s.store_id
+ORDER BY s.store_name ASC;
+
+
+-- Q6
+SELECT o.order_id,
+       CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
+       s.store_name,
+       CONCAT(st.first_name, ' ', st.last_name) AS staff_name
+FROM sales.orders o
+INNER JOIN sales.customers c
+    ON o.customer_id = c.customer_id
+INNER JOIN sales.stores s
+    ON o.store_id = s.store_id
+INNER JOIN sales.staffs st
+    ON o.staff_id = st.staff_id;
+
+
+-- Q7
+SELECT p.product_name,
+       b.brand_name,
+       c.category_name,
+       p.list_price
+FROM production.products p
+INNER JOIN production.brands b
+    ON p.brand_id = b.brand_id
+INNER JOIN production.categories c
+    ON p.category_id = c.category_id
+WHERE b.brand_name = 'Trek'
+ORDER BY p.list_price DESC;
+
+
+-- Q8
+SELECT CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
+       c.city,
+       o.order_date
+FROM sales.customers c
+INNER JOIN sales.orders o
+    ON c.customer_id = o.customer_id
+WHERE c.state = 'NY';
+
+
+-- Q9
+SELECT o.order_id,
+       CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
+       o.order_date
+FROM sales.orders o
+INNER JOIN sales.customers c
+    ON o.customer_id = c.customer_id
+INNER JOIN sales.stores s
+    ON o.store_id = s.store_id
+WHERE o.order_status = 4
+  AND s.store_name = 'Rowlett Bikes';
+
+
+-- Q10
+SELECT c.customer_id,
+       CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
+       o.order_id,
+       o.order_date,
+       o.order_status
+FROM sales.customers c
+LEFT JOIN sales.orders o
+    ON c.customer_id = o.customer_id
+ORDER BY c.customer_id;
+
+
+-- Q11
+SELECT CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
+       c.email
+FROM sales.customers c
+LEFT JOIN sales.orders o
+    ON c.customer_id = o.customer_id
+WHERE o.order_id IS NULL;
+
+
+-- Q12
+SELECT p.product_name,
+       s.store_id,
+       s.quantity
+FROM production.products p
+LEFT JOIN production.stocks s
+    ON p.product_id = s.product_id
+ORDER BY p.product_name;
+
+
+-- Q13
+SELECT p.product_name, p.list_price
+FROM production.products p
+LEFT JOIN sales.order_items oi
+    ON p.product_id = oi.product_id
+WHERE oi.product_id IS NULL;
+
+
+-- Q14
+SELECT CONCAT(st.first_name, ' ', st.last_name) AS staff_name,
+       CONCAT(m.first_name, ' ', m.last_name) AS manager_name
+FROM sales.staffs st
+LEFT JOIN sales.staffs m
+    ON st.manager_id = m.staff_id;
+
+
+-- Q15
+CREATE VIEW vw_bike_catalog AS
+SELECT p.product_name,
+       b.brand_name,
+       c.category_name,
+       p.model_year,
+       p.list_price
+FROM production.products p
+INNER JOIN production.brands b
+    ON p.brand_id = b.brand_id
+INNER JOIN production.categories c
+    ON p.category_id = c.category_id;
+
+SELECT *
+FROM vw_bike_catalog
+WHERE list_price > 2000
+ORDER BY list_price DESC;
+
+
+-- Q16 (BONUS)
+CREATE VIEW vw_customer_orders AS
+SELECT CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
+       c.city,
+       o.order_id,
+       o.order_date,
+       s.store_name,
+       o.order_status
+FROM sales.customers c
+INNER JOIN sales.orders o
+    ON c.customer_id = o.customer_id
+INNER JOIN sales.stores s
+    ON o.store_id = s.store_id;
+
+SELECT customer_name,
+       order_id,
+       order_date,
+       store_name,
+       order_status
+FROM vw_customer_orders
+WHERE city = 'New York'
+ORDER BY order_date ASC;
